@@ -1,0 +1,24 @@
+{% extends '@Contao/content_element/_base.html.twig' %}
+
+{% block content %}
+    <ul>
+        <li>
+            <strong>Name:</strong> {{ package.name }}
+        </li>
+        <li>
+            <strong>Description:</strong> {{ package.description }}
+        </li>
+        <li>
+            <strong>Latest stable version:</strong> {{ package.latestStableVersion.version }} (released on {{ package.latestStableVersion.time|date(contao.date_format) }})
+        </li>
+        <li>
+            <strong>Total downloads: </strong> {{ package.totalDownloads }}
+        </li>
+        <li>
+            <strong>GitHub stars:</strong> {{ package.githubStars }}
+        </li>
+        <li>
+            <strong>Last update: </strong> {{ package.lastUpdated|date(contao.date_format) }}
+        </li>
+    </ul>
+{% endblock %}
