@@ -40,7 +40,6 @@ class PackagistClient {
         return $cacheItem->get()['content'] ?? null;
     }
 
-    /* @var $packageData Package[] */
     private function addPackageInformation(Package $packageData) {
         $data = [];
         $data['name'] = $packageData->getName();
