@@ -1,6 +1,9 @@
 <?php
 namespace Lukasbableck\ContaoPackagistInfoBundle\Client;
 
+use Composer\Semver\Constraint\MultiConstraint;
+use Composer\Semver\Intervals;
+use Composer\Semver\VersionParser;
 use Packagist\Api\Client;
 use Packagist\Api\Result\Package;
 use Packagist\Api\Result\Package\Version;
@@ -32,7 +35,7 @@ class PackagistClient {
                 }
             } catch (\Exception $e) {
                 if (!$cacheItem->isHit()) {
-                    return null;
+                    return;
                 }
             }
         }
@@ -56,6 +59,7 @@ class PackagistClient {
         $data['githubWatchers'] = $packageData->getGithubWatchers();
         $data['githubOpenIssues'] = $packageData->getGithubOpenIssues();
         $data['language'] = $packageData->getLanguage();
+        $data['compatibleContaoVersions'] = $this->getCompatibleContaoVersions($packageData);
 
         return $data;
     }
@@ -68,5 +72,32 @@ class PackagistClient {
         }
 
         return null;
+    }
+
+    private function getCompatibleContaoVersions(Package $packageData): ?string {
+        $contaoConstraints = [];
+        foreach ($packageData->getVersions() as $version) {
+            $versionConstraint = $version->getRequire()['contao/core-bundle'] ?? $version->getRequire()['contao/manager-bundle'] ?? null;
+
+            if ($versionConstraint) {
+                try {
+                    $contaoConstraints[] = (new VersionParser())->parseConstraints($versionConstraint);
+                } catch (\Throwable) {
+                    return null;
+                }
+            }
+        }
+
+        $contaoConstraints = array_unique($contaoConstraints);
+
+        return $this->normalizeConstraints($contaoConstraints);
+    }
+
+    private function normalizeConstraints(array $constraints): string {
+        $constraint = (string) Intervals::compactConstraint(MultiConstraint::create($constraints, false));
+        $constraint = str_replace(['[', ']'], '', $constraint);
+        $constraint = preg_replace('{(\d+\.\d+\.\d+)\.\d+(-dev)?( |$)}', '$1 ', $constraint);
+
+        return trim($constraint);
     }
 }
