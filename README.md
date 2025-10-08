@@ -23,3 +23,4 @@ Package information is cached for 10 minutes to reduce the number of API request
   - `githubWatchers`: The number of watchers on GitHub (if applicable).
   - `githubOpenIssues`: The number of open issues on GitHub (if applicable).
   - `language`: The programming language of the package.
+  - `compatibleContaoVersions`: The Contao versions supported by the package.
