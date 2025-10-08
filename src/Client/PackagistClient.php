@@ -89,6 +89,9 @@ class PackagistClient {
         }
 
         $contaoConstraints = array_unique($contaoConstraints);
+        if (empty($contaoConstraints)) {
+            return null;
+        }
 
         return $this->normalizeConstraints($contaoConstraints);
     }
