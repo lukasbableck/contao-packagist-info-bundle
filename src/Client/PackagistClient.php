@@ -47,7 +47,8 @@ class PackagistClient {
         $data = [];
         $data['name'] = $packageData->getName();
         $data['description'] = $packageData->getDescription();
-        $data['lastUpdated'] = $packageData->getTime() ? new \DateTime($packageData->getTime()) : null;
+        $data['created'] = $packageData->getTime() ? new \DateTime($packageData->getTime()) : null;
+        $data['lastUpdated'] = $this->getLastUpdate($packageData);
         $data['versions'] = $packageData->getVersions();
         $data['latestStableVersion'] = $this->getLatestStableVersion($packageData);
         $data['repository'] = $packageData->getRepository();
@@ -62,6 +63,17 @@ class PackagistClient {
         $data['compatibleContaoVersions'] = $this->getCompatibleContaoVersions($packageData);
 
         return $data;
+    }
+
+    private function getLastUpdate(Package $packageData): \DateTime {
+        $latestVersion = null;
+        foreach ($packageData->getVersions() as $version) {
+            if ($latestVersion === null || new \DateTime($version->getTime()) > new \DateTime($latestVersion->getTime())) {
+                $latestVersion = $version;
+            }
+        }
+
+        return $latestVersion ? new \DateTime($latestVersion->getTime()) : new \DateTime();
     }
 
     private function getLatestStableVersion(Package $packageData): ?Version {
